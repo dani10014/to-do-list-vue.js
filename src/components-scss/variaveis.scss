@@ -1,0 +1,33 @@
+$corPadraoSite:#1e1e1e;
+
+$font-titulo:2rem;
+$font-titulosCard:1rem;
+$font-informacoes:0.7rem;
+
+$espacamentoCabecalho:0.75rem;
+$espacamentoRegular :1rem;
+
+
+@mixin fonteMedia{
+    font-family: "Idiqlat", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+@mixin fonteTextoSite{
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+@mixin padraoBotao{
+    border-radius: 10px;
+    background-color: #e6e0e0;
+    border: none;
+    color: black;
+    box-shadow: 0px 0px 10px #1e1e1e;
+    transition: all 0.3s ease-in-out;
+    &:hover{
+        background-color:darken($color: #e6e0e0, $amount: 20%);
+    }
+}
