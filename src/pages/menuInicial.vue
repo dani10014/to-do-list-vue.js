@@ -26,32 +26,67 @@
         </div>
         <div class="main-anotacoes">
             <div class="botoes-categoria">
-                <button>Menos importante</button>
-                <button>Mais importante</button>
-                <button>Concluidos</button>
-                <button>Pendente</button>
+                <button 
+                    v-for = "item in categoria"
+                    @click = "categoriaQueEstaAtiva = item"
+                    :class="{ ativoCategoria: categoriaQueEstaAtiva === item }"
+                    >{{ item }}
+                </button>
             </div>
             <div class="conteudo-categoria">
-                <div class="card">
-                    <h3 class="titulo-nota">Titulo</h3>
-                    <div class="informacoes">
-                        <span>Importante</span>
-                        <span>Pendente</span>
-                    </div>
-                    <textarea disabled class="area-de-texto-nota">lalala</textarea>
-                    <div class="botoes-editar">
-                        <button class="editar-nota">Editar</button>
-                        <button class="remover">Remover</button>
-                    </div>
-                </div>
+                <template v-if ="notasFiltradas.length > 0" >
+                    <card
+                        v-for="item in notasFiltradas" 
+                        :key="item.id"
+                        :dadosNota="item"
+                    />
+                    
+                </template>
+                <h2 v-else>Nenhuma nota inserida</h2>
             </div>
         </div>
-        <button class="adicionar-anotacao"><i class="fa-solid fa-plus"></i></button>
+        <button @click="AtivarAdicionarNota" class="adicionar-anotacao"><i class="fa-solid fa-plus"></i></button>
+        <cardAnotacao v-if="adicionarNotaAtivo"/>
     </main>
 </template>
 <script setup lang="ts">
+    import { onMounted, reactive,ref,computed } from "vue";
+    import card from "../component/card.vue";
+    import cardAnotacao from "../component/cardAdicionarAnotacao.vue";
+    
+    interface nota{
+        id:number,
+        categoria:string,
+        titulo:string,
+        textoNota:string,
+        data:string,
+    }
 
-</script>
+    const adicionarNotaAtivo = ref(false);
+    
+    const categoria = ["Menos importante","Mais importantes","concluidas","Pendentes"]
+    const categoriaQueEstaAtiva = ref("Menos importante");
+    const notas = ref<nota[]>([]);
+    
+    const AtivarAdicionarNota = () =>{
+        if(adicionarNotaAtivo.value === true){
+            adicionarNotaAtivo.value = false;
+        }else{
+            adicionarNotaAtivo.value = true;
+        }
+    }
+    onMounted(() => {
+        let nota = localStorage.getItem("notas")
+
+        if(nota){
+            notas.value = JSON.parse(nota)
+        }
+    })
+    const notasFiltradas = computed(() => {
+        return notas.value.filter(n => n.categoria === categoriaQueEstaAtiva.value);
+    });
+    
+</script>   
 <style lang="scss" scoped>
     @use "../components-scss/variaveis.scss";
 
@@ -69,7 +104,7 @@
             color: #fff;
             backdrop-filter: blur(10px);
             background-color: #ffffff0c;
-            height: 32px;
+            height: 50px;
             &_botao-idioma{
                 height: 100%;
                 @include variaveis.padraoBotao;
@@ -160,6 +195,10 @@
                     width: 100%;
                     height: 100%;
                     @include variaveis.padraoBotao;
+                    &.ativoCategoria{
+                        background-color: grey;
+                        color: #fff;
+                    }
                 }
             }
             .conteudo-categoria{
@@ -171,40 +210,7 @@
                     width: 50%;
                 }
             }
-            .card{
-                @include variaveis.fonteTextoSite;
-                padding: variaveis.$espacamentoCabecalho;
-                overflow-y: scroll;
-                @include variaveis.padraoCard;
-                .titulo-nota{
-                    text-align: center;
-                }
-                .informacoes{
-                    display: flex;
-                    justify-content: center;
-                    margin-bottom: 2rem;
-                    gap: 10px;
-                    span{
-                        font-size: variaveis.$font-informacoes;
-                        background-color: red;
-                        padding: 0.3rem;
-                        border-radius: 5px;
-                        color: #fff;
-                    }
-                }
-                .area-de-texto-nota{
-                    margin-bottom:10px;
-                }
-                .botoes-editar{
-                    display: flex;
-                    gap: 10px;
-                    margin-top: 1rem;
-                    button{
-                        width: 100%;
-                        height:30px
-                    }
-                }
-            }
+        }
         }
         .adicionar-anotacao{
             display: flex;
@@ -219,9 +225,9 @@
             border: none;
             background-color: #e6e0e0;
             transition: all 0.3s ease-in-out;
+            z-index: 300;
             &:hover{
                 background-color:darken($color: #e6e0e0, $amount: 20%);
             }
         }
-    }
 </style>
