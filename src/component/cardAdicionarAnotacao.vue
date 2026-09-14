@@ -3,25 +3,41 @@
         <div class="card">
             <h2>Adicionar anotacao</h2>
             <div class="botoes-importancia">
-                <button class="btn-importante">Importante</button>
-                <button class="btn-menos-importante">Menos importante</button>
-                <button class="nao-importante">Não importante</button>
+                <button @click="notaNova.categoria = 'Importante'" class="btn-importante">Importante</button>
+                <button @click="notaNova.categoria = 'Menos importante'" class="btn-menos-importante">Menos importante</button>
+                <button @click="notaNova.categoria = 'Nao importante'" class="nao-importante">Não importante</button>
             </div>
             <h4 class="titulo-anotacao">Titulo anotação</h4>
-            <textarea class="area-texto-nota" ></textarea>
+            <textarea class="area-texto-nota" v-model="notaNova.titulo"></textarea>
 
             <h4 class="titulo-anotacao">Anotação</h4>
-            <textarea class="area-texto-nota" ></textarea>
+            <textarea class="area-texto-nota" v-model="notaNova.textoNota"></textarea>
 
             <div class="botoes-cancelar-excluir">
-                <button class="cancelar">Cancelar</button>
-                <button class="adicionar">Adicionar</button>
+                <button class="cancelar" >Cancelar</button>
+                <button class="adicionar" @click="adicionarNota">Adicionar</button>
             </div>
         </div>
     </div>
 </template>
-<script lang="ts">
+<script setup lang="ts">
+    import {reactive, ref} from "vue";
 
+    const notaNova = ref({
+        id:crypto.randomUUID(),
+        titulo: '',
+        textoNota: '',
+        categoria: ''
+    });
+
+    
+    const avisoNovaNota = defineEmits(['novaNota'])
+    
+    const adicionarNota = () =>{
+        if(notaNova.value.titulo.length > 0 && notaNova.value.textoNota.length > 0 && notaNova.value.categoria.length > 0 ){
+            avisoNovaNota('novaNota',notaNova.value)
+        }
+    }
 </script>
 <style lang="scss" scoped>
 @use "../components-scss/variaveis.scss";

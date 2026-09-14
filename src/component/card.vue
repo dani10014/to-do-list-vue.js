@@ -1,21 +1,29 @@
 <template>
 <div class="card">
-    <h3 class="titulo-nota">Titulo</h3>
+    <h3 class="titulo-nota">{{ dadosNota.titulo }}</h3>
         <div class="informacoes">
-            <span>Importante</span>
-            <span>Pendente</span>
+            <span>{{ dadosNota.categoria }}</span>
         </div>
-        <textarea disabled class="area-de-texto-nota">lalala</textarea>
+        <textarea disabled class="area-de-texto-nota">{{ dadosNota.textoNota }}</textarea>
         <div class="botoes-editar">
             <button class="editar-nota">Editar</button>
             <button class="remover">Remover</button>
         </div>
 </div>
 </template>
-<script lang="ts">
+<script setup lang="ts">
     import {ref,reactive} from "vue";
-
     
+    interface nota{
+        id:string,
+        titulo:string,
+        textoNota:string,
+        categoria:string,
+    }
+
+    const props = defineProps<{
+        dadosNota:nota
+    }>()
 </script>
 <style lang="scss" scoped>
     @use "../components-scss/variaveis.scss";
@@ -23,7 +31,6 @@
     .card{
         @include variaveis.fonteTextoSite;
         padding: variaveis.$espacamentoCabecalho;
-        overflow-y: scroll;
         @include variaveis.padraoCard;
         .titulo-nota{
             text-align: center;

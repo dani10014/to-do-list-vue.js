@@ -46,25 +46,24 @@
             </div>
         </div>
         <button @click="AtivarAdicionarNota" class="adicionar-anotacao"><i class="fa-solid fa-plus"></i></button>
-        <cardAnotacao v-if="adicionarNotaAtivo"/>
+        <cardAnotacao v-if="adicionarNotaAtivo" @novaNota="adicionarNovaNota"/>
     </main>
 </template>
 <script setup lang="ts">
-    import { onMounted, reactive,ref,computed } from "vue";
+    import { onMounted,ref,computed } from "vue";
     import card from "../component/card.vue";
     import cardAnotacao from "../component/cardAdicionarAnotacao.vue";
     
     interface nota{
-        id:number,
+        id:string,
         categoria:string,
         titulo:string,
         textoNota:string,
-        data:string,
     }
 
     const adicionarNotaAtivo = ref(false);
     
-    const categoria = ["Menos importante","Mais importantes","concluidas","Pendentes"]
+    const categoria = ["Menos importante","Importante","Nao importante","concluidas","Pendentes"]
     const categoriaQueEstaAtiva = ref("Menos importante");
     const notas = ref<nota[]>([]);
     
@@ -82,9 +81,20 @@
             notas.value = JSON.parse(nota)
         }
     })
+
     const notasFiltradas = computed(() => {
         return notas.value.filter(n => n.categoria === categoriaQueEstaAtiva.value);
     });
+
+    const adicionarNovaNota = (dados:any) => {
+        if(dados){
+            notas.value.push(dados)
+            localStorage.setItem("notas",JSON.stringify(notas.value))
+            adicionarNotaAtivo.value = false;
+        }else{
+            return
+        }
+    }
     
 </script>   
 <style lang="scss" scoped>
@@ -205,9 +215,10 @@
                 width: 100%;
                 display: flex;
                 height: 250px;
-                overflow-y: scroll;
+                flex-wrap: wrap;
+                gap: 10px;
                 @media (min-width:750px){
-                    width: 50%;
+                    width: 100%;
                 }
             }
         }
