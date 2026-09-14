@@ -31,3 +31,10 @@ $espacamentoRegular :1rem;
         background-color:darken($color: #e6e0e0, $amount: 20%);
     }
 }
+@mixin padraoCard{
+    border-radius: 10px;
+    background-color: #e6e0e0;
+    border: none;
+    color: black;
+    box-shadow: 0px 0px 10px #1e1e1e;
+}
