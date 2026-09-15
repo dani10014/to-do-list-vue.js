@@ -35,18 +35,23 @@
             </div>
             <div class="conteudo-categoria">
                 <template v-if ="notasFiltradas.length > 0" >
+                    <TransitionGroup name="fade" tag="div" class="conteudo-categoria">
                     <card
                         v-for="item in notasFiltradas" 
                         :key="item.id"
                         :dadosNota="item"
-                    />
-                    
+                        @deletarCard="deletarCard(item.id)"
+                        @editarCard="editarNotaCard($event,item.id)"
+                        />
+                    </TransitionGroup>
                 </template>
                 <h2 v-else>Nenhuma nota inserida</h2>
             </div>
         </div>
         <button @click="AtivarAdicionarNota" class="adicionar-anotacao"><i class="fa-solid fa-plus"></i></button>
-        <cardAnotacao v-if="adicionarNotaAtivo" @novaNota="adicionarNovaNota"/>
+        <Transition name="fade">
+            <cardAnotacao v-if="adicionarNotaAtivo" @novaNota="adicionarNovaNota" @cancelarAdicao="cancelarAdicao"/>
+        </Transition>
     </main>
 </template>
 <script setup lang="ts">
@@ -95,10 +100,44 @@
             return
         }
     }
-    
+    const cancelarAdicao = () => {
+        adicionarNotaAtivo.value = false
+    }
+    const deletarCard = (id:string) =>{
+        const novaArraySemObj = notas.value.filter(item => item.id !== id)
+        notas.value = novaArraySemObj;
+        localStorage.setItem("notas",JSON.stringify(notas.value))
+    }
+    const editarNotaCard = (texto:string,id:string) =>{
+        const card = notas.value.find(card => card.id === id)
+
+        if(card){
+            card.textoNota = texto;
+            localStorage.setItem("notas",JSON.stringify(notas.value))
+        }
+    }
+
 </script>   
 <style lang="scss" scoped>
     @use "../components-scss/variaveis.scss";
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.5s ease;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .fade-leave-active {
+        position: absolute;
+    }
+
+    .fade-move {
+        transition: transform 0.5s ease;
+    }
 
     header{
         background-color:inherit;

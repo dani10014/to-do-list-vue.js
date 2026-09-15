@@ -4,16 +4,19 @@
         <div class="informacoes">
             <span>{{ dadosNota.categoria }}</span>
         </div>
-        <textarea disabled class="area-de-texto-nota">{{ dadosNota.textoNota }}</textarea>
+        <textarea disabled v-if="!edicaoAtiva" class="area-de-texto-nota">{{ dadosNota.textoNota }}</textarea>
+        <textarea v-if="edicaoAtiva" v-model="novoTextoNota" class="area-de-texto-nota"></textarea>
         <div class="botoes-editar">
-            <button class="editar-nota">Editar</button>
-            <button class="remover">Remover</button>
+            <button class="editar-nota" v-if="!edicaoAtiva" @click="editarCard">Editar</button>
+            <button class="editar-nota" v-if="edicaoAtiva" @click="cancelarEdicao">Cancelar</button>
+            <button class="editar-nota" v-if="edicaoAtiva" @click="salvarEdicao">Salvar</button>
+            <button class="remover" v-if="!edicaoAtiva" @click="deletarCard">Remover</button>
         </div>
 </div>
 </template>
 <script setup lang="ts">
     import {ref,reactive} from "vue";
-    
+
     interface nota{
         id:string,
         titulo:string,
@@ -21,9 +24,30 @@
         categoria:string,
     }
 
+    const novoTextoNota = ref("");
+
+    const edicaoAtiva = ref(false);
+
+    const emit = defineEmits(['deletarCard','editarCard'])
+    
     const props = defineProps<{
         dadosNota:nota
     }>()
+
+    const deletarCard = () =>{
+        emit('deletarCard')
+    }
+    const editarCard = () =>{
+        edicaoAtiva.value = true;
+    }
+    const cancelarEdicao = () =>{
+        edicaoAtiva.value = false;
+        novoTextoNota.value = "";
+    }
+    const salvarEdicao = () =>{
+        emit('editarCard',novoTextoNota.value)
+        edicaoAtiva.value = false;
+    }
 </script>
 <style lang="scss" scoped>
     @use "../components-scss/variaveis.scss";
