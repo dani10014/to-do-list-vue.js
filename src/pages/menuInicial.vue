@@ -42,6 +42,7 @@
                         :dadosNota="item"
                         @deletarCard="deletarCard(item.id)"
                         @editarCard="editarNotaCard($event,item.id)"
+                        @marcarConcluido="marcarConcluido(item.id)"
                         />
                     </TransitionGroup>
                 </template>
@@ -58,7 +59,8 @@
     import { onMounted,ref,computed } from "vue";
     import card from "../component/card.vue";
     import cardAnotacao from "../component/cardAdicionarAnotacao.vue";
-    
+    import verificarCategoria from "../component/card.vue";
+
     interface nota{
         id:string,
         categoria:string,
@@ -68,7 +70,7 @@
 
     const adicionarNotaAtivo = ref(false);
     
-    const categoria = ["Menos importante","Importante","Nao importante","concluidas","Pendentes"]
+    const categoria = ["Menos importante","Importante","Nao importante","Concluidas","Pendentes"]
     const categoriaQueEstaAtiva = ref("Menos importante");
     const notas = ref<nota[]>([]);
     
@@ -113,6 +115,15 @@
 
         if(card){
             card.textoNota = texto;
+            localStorage.setItem("notas",JSON.stringify(notas.value))
+        }
+    }
+
+    const marcarConcluido = (idCard:string) =>{
+        const card = notas.value.find(card => card.id === idCard)
+
+        if(card){
+            card.categoria = "Concluidas"
             localStorage.setItem("notas",JSON.stringify(notas.value))
         }
     }

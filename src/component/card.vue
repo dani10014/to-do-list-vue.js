@@ -2,12 +2,13 @@
 <div class="card">
     <h3 class="titulo-nota">{{ dadosNota.titulo }}</h3>
         <div class="informacoes">
-            <span>{{ dadosNota.categoria }}</span>
+            <span :class= "{ativoCardConcluido:cardConcluido}">{{ dadosNota.categoria }}</span>
         </div>
         <textarea disabled v-if="!edicaoAtiva" class="area-de-texto-nota">{{ dadosNota.textoNota }}</textarea>
         <textarea v-if="edicaoAtiva" v-model="novoTextoNota" class="area-de-texto-nota"></textarea>
         <div class="botoes-editar">
-            <button class="editar-nota" v-if="!edicaoAtiva" @click="editarCard">Editar</button>
+            <button class="editar-nota" v-if="!edicaoAtiva && !cardConcluido" @click="marcarConcluido">Marcar Concluir</button>
+            <button class="editar-nota" v-if="!edicaoAtiva && !cardConcluido" @click="editarCard">Editar</button>
             <button class="editar-nota" v-if="edicaoAtiva" @click="cancelarEdicao">Cancelar</button>
             <button class="editar-nota" v-if="edicaoAtiva" @click="salvarEdicao">Salvar</button>
             <button class="remover" v-if="!edicaoAtiva" @click="deletarCard">Remover</button>
@@ -15,7 +16,7 @@
 </div>
 </template>
 <script setup lang="ts">
-    import {ref,reactive} from "vue";
+    import {ref,reactive,computed} from "vue";
 
     interface nota{
         id:string,
@@ -24,11 +25,13 @@
         categoria:string,
     }
 
+    const cardConcluido = computed(() => props.dadosNota.categoria === "Concluidas");
+
     const novoTextoNota = ref("");
 
     const edicaoAtiva = ref(false);
 
-    const emit = defineEmits(['deletarCard','editarCard'])
+    const emit = defineEmits(['deletarCard','editarCard','marcarConcluido'])
     
     const props = defineProps<{
         dadosNota:nota
@@ -47,6 +50,9 @@
     const salvarEdicao = () =>{
         emit('editarCard',novoTextoNota.value)
         edicaoAtiva.value = false;
+    }
+    const marcarConcluido = () =>{
+        emit('marcarConcluido')
     }
 </script>
 <style lang="scss" scoped>
@@ -70,6 +76,9 @@
                 padding: 0.3rem;
                 border-radius: 5px;
                 color: #fff;
+                &.ativoCardConcluido{
+                    background-color: green;
+                }
             }
         }
         .area-de-texto-nota{
