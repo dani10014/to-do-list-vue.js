@@ -2,20 +2,20 @@
     <header>
         <div class="cabecalho">
             <h1 class="cabecalho_titulo">Unlist</h1>
-            <button class="cabecalho_botao-idioma"><i class="fi fi-br"></i></button>
+            <button class="cabecalho_botao-idioma" @click="abrirMenuIdioma"><i class="fi fi-br"></i></button>
         </div>
     </header>
     <main>
         <div class="hero">
             <div class="hero_container">
                 <div class="texto-hero">
-                    <h2>Não perca anotações</h2>
-                    <p>Anote tudo de importante</p>
+                    <h2>{{ idiomaCarregado.HeroNoNotesLose }}</h2>
+                    <p>{{ idiomaCarregado.HeroImportantNotes }}</p>
                     <div class="texto-hero_lista-beneficios">
                         <ul>
-                            <li>Marcadores de importancia</li>
-                            <li>Salvamento em nuvem</li>
-                            <li>Totalmente grátis</li>
+                            <li>{{ idiomaCarregado.HeroImportantMakers}}</li>
+                            <li>{{ idiomaCarregado.HeroCloudSaving }}</li>
+                            <li>{{ idiomaCarregado.HeroFreeService}}</li>
                         </ul>
                     </div>
                     <button class="btn-entrar">
@@ -24,6 +24,16 @@
                 </div>
             </div>
         </div>
+        <Transition name="fade">
+            <div v-if="menuIdiomaAtivo" class="menu-idioma">
+                <div class="cabecalho">
+                    <h4>Idioma</h4>
+                </div>
+                <div class="container-idiomas">
+                    <button v-for="btn in idiomas" @click="mudarIdioma(btn)" :class="{ativoBtnIdioma:idiomaAtivo === btn}">{{ btn }}</button>
+                </div>
+            </div>
+        </Transition>
         <div class="main-anotacoes">
             <div class="botoes-categoria">
                 <button 
@@ -59,7 +69,6 @@
     import { onMounted,ref,computed } from "vue";
     import card from "../component/card.vue";
     import cardAnotacao from "../component/cardAdicionarAnotacao.vue";
-    import verificarCategoria from "../component/card.vue";
 
     interface nota{
         id:string,
@@ -67,11 +76,37 @@
         titulo:string,
         textoNota:string,
     }
-
+    interface linguagem{
+        HeroNoNotesLose:string
+        HeroImportantNotes:string
+        HeroImportantMakers:string
+        HeroCloudSaving:string
+        HeroFreeService:string
+        linguagem:string
+        login:string
+        NoNotes:string
+        textImportant:string
+        Least:string
+        NotImportant:string
+        title:string
+        Note:string
+        btnCancel:string
+        btnSave:string
+        btnCategoriPendent:string
+        btnFinished:string
+    }
+    
+    const menuIdiomaAtivo = ref(false);
     const adicionarNotaAtivo = ref(false);
     
-    const categoria = ["Menos importante","Importante","Nao importante","Concluidas","Pendentes"]
+    const categoria = ["Menos importante","Importante","Nao importante","Concluida","Pendentes"]
     const categoriaQueEstaAtiva = ref("Menos importante");
+
+    const idiomas = ["English","Portugues","Espanhol"]
+    const idiomasDisponiveis = ref<any[]>([]);
+    const idiomaAtivo = ref("Portugues")
+    const idiomaCarregado = ref<linguagem>({} as linguagem);
+
     const notas = ref<nota[]>([]);
     
     const AtivarAdicionarNota = () =>{
@@ -123,9 +158,36 @@
         const card = notas.value.find(card => card.id === idCard)
 
         if(card){
-            card.categoria = "Concluidas"
+            card.categoria = "Concluida"
             localStorage.setItem("notas",JSON.stringify(notas.value))
         }
+    }
+
+    const abrirMenuIdioma = ()=>{
+        menuIdiomaAtivo.value = !menuIdiomaAtivo.value;
+    }
+    
+    onMounted (async() =>{
+        try{
+            const buscarIdiomas = await fetch("../src/en.json")
+            
+            const idiomasEncontrado = await buscarIdiomas.json();
+            
+            if(idiomasEncontrado){
+                idiomasDisponiveis.value = idiomasEncontrado
+                idiomaCarregado.value = idiomasDisponiveis.value.find(idioma => idioma.linguagem === "Portugues")
+            }else{
+                return
+            }
+
+        }catch(error){
+            console.log("Erro ao buscar dados de linguagem",error)
+        }
+    })
+    const mudarIdioma = async (idioma:string) => {
+        idiomaAtivo.value = idioma
+
+        idiomaCarregado.value = idiomasDisponiveis.value.find(lingua => lingua.linguagem === idioma)
     }
 
 </script>   
@@ -175,6 +237,39 @@
                 font-size: variaveis.$font-titulosCard;
             }
         }
+    }
+    .menu-idioma{
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        top: 60px;
+        background-color:#e6e0e0 ;
+        height: 250px;
+        width: 150px;
+        right: 10px;
+        border-radius: 10px;
+        .cabecalho{
+            position: fixed;
+            h4{
+                margin: 0;
+                padding: 5px;
+                @include variaveis.fonteTextoSite;
+            }
+        }
+        .container-idiomas{
+            margin-top: 30px;
+            button{
+                width: 100%;
+                height: 20px;
+                border-radius: 0;
+                border: none;
+                &.ativoBtnIdioma{
+                    background-color: #e6e0e0;
+                    border: 1px solid variaveis.$corDestaque;
+                }
+            }
+        }
+        
     }
     main{
         .hero{
@@ -243,6 +338,7 @@
                 display: flex;
                 justify-content: center;
                 flex-direction: row;
+                align-items: center;
                 height: 15%;
                 width: 100%;
                 gap:10px;
@@ -252,8 +348,8 @@
                     height: 100%;
                 }
                 button{
-                    width: 100%;
                     height: 100%;
+                    width: 100%;
                     @include variaveis.padraoBotao;
                     &.ativoCategoria{
                         background-color: grey;
@@ -264,12 +360,9 @@
             .conteudo-categoria{
                 width: 100%;
                 display: flex;
-                height: 250px;
+                height: 300px;
                 flex-wrap: wrap;
                 gap: 10px;
-                @media (min-width:750px){
-                    width: 100%;
-                }
             }
         }
         }
